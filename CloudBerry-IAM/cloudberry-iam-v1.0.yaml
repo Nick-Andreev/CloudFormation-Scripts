@@ -1,0 +1,62 @@
+# This section defines pre-existing resources in customer's VPC
+Parameters:
+  CloudBerryBucketName:
+    Type: String
+    Default: "cloudberry-bucket"
+
+# This section defines CloudFormation resources
+Resources:
+  # CloudBerry Backup
+  CloudBerryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref CloudBerryBucketName
+  CloudBerryRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies: 
+        - PolicyName: "CloudBerry-Backup"
+          PolicyDocument: 
+            Statement: 
+              - Effect: "Allow"
+                Action:
+                  - "s3:ListBucket"
+                  - "s3:GetBucketAcl"
+                  - "s3:GetBucketVersioning"
+                  - "s3:GetBucketRequestPayment"
+                  - "s3:GetBucketLocation"
+                  - "s3:GetBucketPolicy"  
+                Resource:
+                  - !GetAtt CloudBerryBucket.Arn
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:DeleteObject"
+                  - "s3:DeleteObjectVersion"
+                  - "s3:GetObjectAcl"
+                  - "s3:GetObjectVersion"
+                  - "s3:GetObjectVersionAcl"
+                  - "s3:PutObject"
+                  - "s3:PutObjectAcl"
+                  - "s3:PutObjectVersionAcl"
+                Resource:
+                  - !GetAtt CloudBerryBucket.Arn
+              - Effect: "Allow"
+                Action:
+                  - "s3:ListAllMyBuckets"
+                Resource: "*"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonGlacierFullAccess"
+  CloudBerryConfigInstanceProfile :
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref CloudBerryRole
