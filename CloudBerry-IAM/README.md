@@ -28,7 +28,7 @@ You can check if CloudFormation template deployed successfully in CloudFormation
 * Python 2.7.10
 * Darwin 16.7.0
 
-Author
+### Author
 
 Nick Andreev:
 
